@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link href="/assets/favicon.ico?v=1.0" mce_href="/assets/favicon.ico?v=1.0" rel="shortcut icon" type="image/x-icon" /> 
+    <title>博了个客</title>
+    <meta name="description" content="Jory的博客">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link  type="text/css"rel="stylesheet"  href="style.css"/>
+    <link  type="text/css"rel="stylesheet"  href="//cdn.bootcss.com/ionicons/2.0.1/css/ionicons.min.css"/>
+    <script type="text/javascript" src="//cdn.bootcss.com/showdown/1.6.4/showdown.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcss.com/angular.js/1.2.32/angular.min.js"></script>
+</head>
+<body>
+  <main role="main">
+    <div class="grid grid-centered" ng-app="oneApp" ng-controller="oneCtrl">
+      <div class="grid-cell">
+        <nav class="header-nav reveal" data-sr-id="1">
+            <a ng-href="#" class="header-logo" title="Jory的博客">博了个客</a>
+            <ul class="header-links">
+            <li>
+                <a ng-href="#" title="Jory的博客 首页">
+                  <span class="icon icon-ios-home"></span>
+                </a>
+            </li>
+          </ul>
+        </nav>
+        <ul class="article-list" id="content_list">
+            <li ng-repeat="item in catalogs track by $index" class="article-list-item reveal" data-sr-id="2">
+                  <a ng-href="#{{item.file}}" title={{item.title}}>
+                    <h5 style="font-size:18.72px;font-weight: 500">
+                      {{item.title}}
+                      <span class="icon icon-ios-arrow-thin-right"></span>
+                    </h5>
+                  </a>
+                  <p></p><p><a ng-href="#{{item.file}}">{{item.description}}</a></p>
+
+                  <p></p>
+                  <div class="article-list-footer">
+                    <span class="article-list-date">
+                      {{item.createTime}}
+                    </span>
+                    <span class="article-list-divider">-</span>
+                    <div class="article-list-tags">
+                      
+                        <a href="/tag/{{tag}}" ng-repeat="tag in item.tag" >{{tag}}</a>
+                      
+                    </div>
+                  </div>
+            </li>
+        </ul>
+        <div id="md_result" style="display:none">
+        </div>
+        <footer class="footer" data-sr-id="3">
+          <p>
+            <a ng-href="#" title="Jory的博客">En Jory Blog</a> -- 简单的生活，记录简单的事
+          </p>
+        </footer>
+    </div>
+    </div>
+ </main>
+</body>
+
+<script type="text/javascript">
+var app = angular.module('oneApp', []);
+app.controller('oneCtrl', function($scope, $http) {
+    $scope.catalogs = [{
+               "title":"关于作者",
+               "description":"个人介绍",
+               "createTime":"2017/04/17",
+               "tag":["关于"],
+               "file":"about",
+           },
+           {
+               "title":"关于博客",
+               "description":"本博客的介绍",
+               "createTime":"2017/04/17",
+               "tag":["关于","博客"],
+               "file":"blog",
+           }
+    ];
+    function goBlog(name){
+      if(!name){
+        document.getElementById('content_list').style.display="";
+        document.getElementById('md_result').style.display="none";
+        return;
+      }
+      document.getElementById('content_list').style.display="none";
+      $http({
+          method: 'GET',
+          url: '/blog/'+ name + '.md',
+          }).then(function successCallback(response) {
+              var text = response.data;
+              var converter = new showdown.Converter();
+              var html = converter.makeHtml(text);
+              document.getElementById("md_result").innerHTML = html;
+              document.getElementById('md_result').style.display="";
+            }, function errorCallback(response) {
+              window.location.hash = "";
+      });
+    }
+    $scope.handleHash = function(){
+      var hash = window.location.hash.replace('#','');
+      var hashArr = hash.split(':');
+      switch(hashArr[0]){
+        case "tag": break;
+        case "time": break;
+        default: goBlog(hashArr[0]);
+      }
+    }
+    $scope.handleHash();
+    window.onhashchange = function(){
+      $scope.handleHash();
+    }
+
+});
+</script>
+</body>
+</html>
